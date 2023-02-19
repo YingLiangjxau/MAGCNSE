@@ -1,5 +1,5 @@
 # MAGCNSE
-This is our implementation for the paper:
+This is the implementation for our paper:
 >MAGCNSE: predicting lncRNA-disease associations using multi-view attention graph convolutional network and stacking ensemble model
 ## File Description 
 >param.py: assign values to hyperparameters used in this study.  
