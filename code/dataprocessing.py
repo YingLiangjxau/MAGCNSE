@@ -49,11 +49,6 @@ def data_pro(args):
     dgs_edge_index = get_edge_index(dgs_matrix)
     dataset['dgs'] = {'data_matrix': dgs_matrix, 'edges': dgs_edge_index}
 
-    #disease cosine similarity
-    dcs_matrix = read_csv(args.dataset_path + '/DCS.csv')
-    dcs_edge_index = get_edge_index(dcs_matrix)
-    dataset['dcs'] = {'data_matrix': dcs_matrix, 'edges': dcs_edge_index}
-
 
     #lncRNA functional similarity
     lfs_matrix = read_csv(args.dataset_path + '/LFS.csv')
@@ -65,10 +60,10 @@ def data_pro(args):
     lgs_edge_index = get_edge_index(lgs_matrix)
     dataset['lgs'] = {'data_matrix': lgs_matrix, 'edges': lgs_edge_index}
     
-    #lncRNA cosine similarity
-    lcs_matrix = read_csv(args.dataset_path + '/LCS.csv')
-    lcs_edge_index = get_edge_index(lcs_matrix)
-    dataset['lcs'] = {'data_matrix': lcs_matrix, 'edges': lcs_edge_index}
+    #lncRNA sequence similarity
+    lss_matrix = read_csv(args.dataset_path + '/LSS.csv')
+    lss_edge_index = get_edge_index(lss_matrix)
+    dataset['lss'] = {'data_matrix': lss_matrix, 'edges': lss_edge_index}
 
     return dataset
 
