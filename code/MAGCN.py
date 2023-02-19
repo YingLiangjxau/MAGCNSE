@@ -20,20 +20,18 @@ class MAGCN(nn.Module):
 
         self.gcn_x1_lfs = GCNConv(self.args.fl, self.args.fl)  #  define the first GCN layer to tackle lncRNA_view 1
         self.gcn_x1_lgs = GCNConv(self.args.fl, self.args.fl)  #  define the first GCN layer to tackle lncRNA_view 2
-        self.gcn_x1_lcs = GCNConv(self.args.fl, self.args.fl)  #  define the first GCN layer to tackle lncRNA_view 3
+        self.gcn_x1_lss = GCNConv(self.args.fl, self.args.fl)  #  define the first GCN layer to tackle lncRNA_view 3
         
         self.gcn_x2_lfs = GCNConv(self.args.fl, self.args.fl)  #  define the second GCN layer to tackle lncRNA_view 1
         self.gcn_x2_lgs = GCNConv(self.args.fl, self.args.fl)  #  define the second GCN layer to tackle lncRNA_view 2
-        self.gcn_x2_lcs = GCNConv(self.args.fl, self.args.fl)  #  define the second GCN layer to tackle lncRNA_view 3
+        self.gcn_x2_lss = GCNConv(self.args.fl, self.args.fl)  #  define the second GCN layer to tackle lncRNA_view 3
          
         self.gcn_y1_dss = GCNConv(self.args.fd, self.args.fd)  #  define the first GCN layer to tackle disease_view 1
         self.gcn_y1_dgs = GCNConv(self.args.fd, self.args.fd)  #  define the first GCN layer to tackle disease_view 2
-        self.gcn_y1_dcs = GCNConv(self.args.fd, self.args.fd)  #  define the first GCN layer to tackle disease_view 3
         
         
         self.gcn_y2_dss = GCNConv(self.args.fd, self.args.fd)  #  define the second GCN layer to tackle disease_view 1
         self.gcn_y2_dgs = GCNConv(self.args.fd, self.args.fd)  #  define the second GCN layer to tackle disease_view 2
-        self.gcn_y2_dcs = GCNConv(self.args.fd, self.args.fd)  #  define the second GCN layer to tackle disease_view 3
 
 
         # define the network structure in attention mechanism module
@@ -77,8 +75,8 @@ class MAGCN(nn.Module):
         x_l_lgs1 = torch.relu(self.gcn_x1_lgs(x_l.cuda(), data['lgs']['edges'].cuda(), data['lgs']['data_matrix'][data['lgs']['edges'][0], data['lgs']['edges'][1]].cuda()))
         x_l_lgs2 = torch.relu(self.gcn_x2_lgs(x_l_lgs1, data['lgs']['edges'].cuda(), data['lgs']['data_matrix'][data['lgs']['edges'][0], data['lgs']['edges'][1]].cuda()))
 
-        x_l_lcs1 = torch.relu(self.gcn_x1_lcs(x_l.cuda(), data['lcs']['edges'].cuda(), data['lcs']['data_matrix'][data['lcs']['edges'][0], data['lcs']['edges'][1]].cuda()))
-        x_l_lcs2 = torch.relu(self.gcn_x2_lcs(x_l_lcs1, data['lcs']['edges'].cuda(), data['lcs']['data_matrix'][data['lcs']['edges'][0], data['lcs']['edges'][1]].cuda()))
+        x_l_lss1 = torch.relu(self.gcn_x1_lss(x_l.cuda(), data['lss']['edges'].cuda(), data['lss']['data_matrix'][data['lss']['edges'][0], data['lss']['edges'][1]].cuda()))
+        x_l_lss2 = torch.relu(self.gcn_x2_lss(x_l_lss1, data['lss']['edges'].cuda(), data['lss']['data_matrix'][data['lss']['edges'][0], data['lss']['edges'][1]].cuda()))
 
         y_d_dss1 = torch.relu(self.gcn_y1_dss(x_d.cuda(), data['dss']['edges'].cuda(), data['dss']['data_matrix'][data['dss']['edges'][0], data['dss']['edges'][1]].cuda()))
         y_d_dss2 = torch.relu(self.gcn_y2_dss(y_d_dss1, data['dss']['edges'].cuda(), data['dss']['data_matrix'][data['dss']['edges'][0], data['dss']['edges'][1]].cuda()))
@@ -86,12 +84,9 @@ class MAGCN(nn.Module):
         y_d_dgs1 = torch.relu(self.gcn_y1_dgs(x_d.cuda(), data['dgs']['edges'].cuda(), data['dgs']['data_matrix'][data['dgs']['edges'][0], data['dgs']['edges'][1]].cuda()))
         y_d_dgs2 = torch.relu(self.gcn_y2_dgs(y_d_dgs1, data['dgs']['edges'].cuda(), data['dgs']['data_matrix'][data['dgs']['edges'][0], data['dgs']['edges'][1]].cuda()))
 
-        y_d_dcs1 = torch.relu(self.gcn_y1_dcs(x_d.cuda(), data['dcs']['edges'].cuda(), data['dcs']['data_matrix'][data['dcs']['edges'][0], data['dcs']['edges'][1]].cuda()))
-        y_d_dcs2 = torch.relu(self.gcn_y2_dcs(y_d_dcs1, data['dcs']['edges'].cuda(), data['dcs']['data_matrix'][data['dcs']['edges'][0], data['dcs']['edges'][1]].cuda()))
 
 
-
-        XM = torch.cat((x_l_lfs1, x_l_lfs2, x_l_lgs1, x_l_lgs2, x_l_lcs1, x_l_lcs2), 1).t()
+        XM = torch.cat((x_l_lfs1, x_l_lfs2, x_l_lgs1, x_l_lgs2, x_l_lss1, x_l_lss2), 1).t()
         XM = XM.view(1, self.args.lncRNA_view*self.args.gcn_layers, self.args.fl, -1)
         x_channel_attenttion = self.globalAvgPool_x(XM)
         x_channel_attenttion = x_channel_attenttion.view(x_channel_attenttion.size(0), -1)
@@ -103,7 +98,7 @@ class MAGCN(nn.Module):
         XM_channel_attention = x_channel_attenttion * XM
         XM_channel_attention = torch.relu(XM_channel_attention)
 
-        YD = torch.cat((y_d_dss1, y_d_dss2, y_d_dgs1, y_d_dgs2, y_d_dcs1, y_d_dcs2), 1).t()
+        YD = torch.cat((y_d_dss1, y_d_dss2, y_d_dgs1, y_d_dgs2), 1).t()
         YD = YD.view(1, self.args.disease_view*self.args.gcn_layers, self.args.fd, -1)
         y_channel_attenttion = self.globalAvgPool_y(YD)
         y_channel_attenttion = y_channel_attenttion.view(y_channel_attenttion.size(0), -1)
