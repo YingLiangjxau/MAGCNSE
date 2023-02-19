@@ -52,7 +52,7 @@ def parameter_parser():
 
     parser.add_argument("--disease-view",
                         type=int,
-                        default=3,
-                        help="disease views number. Default is 3(3 datasets for disease sim)")
+                        default=2,
+                        help="disease views number. Default is 2(2 datasets for disease sim)")
 
     return parser.parse_args()
